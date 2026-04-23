@@ -20,6 +20,13 @@ public class Video {
     @Column(columnDefinition = "LONGTEXT")
     private String quizText;
 
+
+
+    private String transcript; // file name
+    private String summary;
+    private String quiz;
+
+
     @ManyToOne
     private User user;
 
@@ -67,6 +74,30 @@ public class Video {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getTranscriptText() {
+        return transcriptText;
+    }
+
+    public void setTranscriptText(String transcriptText) {
+        this.transcriptText = transcriptText;
+    }
+
+    public String getSummaryText() {
+        return summaryText;
+    }
+
+    public void setSummaryText(String summaryText) {
+        this.summaryText = summaryText;
+    }
+
+    public String getQuizText() {
+        return quizText;
+    }
+
+    public void setQuizText(String quizText) {
+        this.quizText = quizText;
     }
 
 }

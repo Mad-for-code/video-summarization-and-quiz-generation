@@ -83,65 +83,55 @@ public class UploadController {
     // =========================
     // TRANSCRIPT
     // =========================
-    @GetMapping(value = "/transcript/{id}", produces = "text/plain;charset=UTF-8")
-    public String getTranscript(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "en") String lang
-    ) {
+    @GetMapping("/transcript/{id}")
+    public String getTranscript(@PathVariable Long id) {
 
         Video video = videoRepository.findById(id).orElse(null);
 
-        if (video == null || video.getTranscript() == null) {
-            return "NOT_READY";
+        if (video == null) return "NOT_READY";
+
+        // ✅ If already in DB → RETURN FAST
+        if (video.getTranscriptText() != null) {
+            return video.getTranscriptText();
         }
 
+        // ✅ Else read from file
         String fullPath = uploadDir + video.getTranscript();
-
         File file = new File(fullPath);
 
-        if (!file.exists()) {
-            return "NOT_READY";
-        }
+        if (!file.exists()) return "NOT_READY";
 
         String text = videoService.readFileContent(fullPath);
 
-        if (!lang.equals("en")) {
-            text = videoService.translateLargeText(text, lang);
-        }
+        // ✅ SAVE TO DB (IMPORTANT)
+        video.setTranscriptText(text);
+        videoRepository.save(video);
 
         return text;
     }
     // =========================
     // SUMMARY
     // =========================
-    @GetMapping(value = "/summary/{id}", produces = "text/plain;charset=UTF-8")
-    public String getSummary(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "en") String lang
-    ) {
+    @GetMapping("/summary/{id}")
+    public String getSummary(@PathVariable Long id) {
 
         Video video = videoRepository.findById(id).orElse(null);
 
-        if (video == null || video.getSummary() == null) {
-            return "NOT_READY";
+        if (video == null) return "NOT_READY";
+
+        if (video.getSummaryText() != null) {
+            return video.getSummaryText();
         }
 
-        // ✅ FULL PATH
         String fullPath = uploadDir + video.getSummary();
-
         File file = new File(fullPath);
 
-        if (!file.exists()) {
-            return "NOT_READY";
-        }
+        if (!file.exists()) return "NOT_READY";
 
-        // ✅ READ FILE CONTENT
         String text = videoService.readFileContent(fullPath);
 
-        // ✅ TRANSLATION (SAFE)
-        if (!lang.equals("en")) {
-            text = videoService.translateLargeText(text, lang);
-        }
+        video.setSummaryText(text);
+        videoRepository.save(video);
 
         return text;
     }
@@ -149,24 +139,28 @@ public class UploadController {
     // =========================
     // QUIZ
     // =========================
-    @GetMapping(value = "/quiz/{id}", produces = "text/plain;charset=UTF-8")
+    @GetMapping("/quiz/{id}")
     public String getQuiz(@PathVariable Long id) {
 
         Video video = videoRepository.findById(id).orElse(null);
 
-        if (video == null || video.getQuiz() == null) {
-            return "NOT_READY";
+        if (video == null) return "NOT_READY";
+
+        if (video.getQuizText() != null) {
+            return video.getQuizText();
         }
 
         String fullPath = uploadDir + video.getQuiz();
-
         File file = new File(fullPath);
 
-        if (!file.exists()) {
-            return "NOT_READY";
-        }
+        if (!file.exists()) return "NOT_READY";
 
-        return videoService.readFileContent(fullPath);
+        String text = videoService.readFileContent(fullPath);
+
+        video.setQuizText(text);
+        videoRepository.save(video);
+
+        return text;
     }
 
     // ----------//
