@@ -1,0 +1,36 @@
+
+Generate 5 MCQ questions from the following text.
+
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
+
+Text:
+Hana mi Ki Kahania: Hana ki Kahani, hana ki Hana. Jangle par uskaar aaj Aur sabhi jaanwar oke man mein Uskaar dhar Uske bho deh hune ke baad Khaatam hogeya Fher sab ke sab Uske ki kamzori ka mazakodha ne lege Bhoodha share.
+
+- Answer will be on the first page of any answer column
+
+Caveat: Your questions need only be answered correctly, including an answer to a question (without a capital letter). As per the below article:
+
+We are not sure if to answer a question or not. Just to be safe, please answer in the affirmative. Also, be sure to include at least 25 out of the following answers:
+
+- Answer yes
+
+- Answer no
+
+- Answer no
+
+- Answer yes
+
+- Answer no
+
+- Answer yes
+
+- Answer no
+
+- Answer yes
+
+- Answer no
+
+- Answer yes

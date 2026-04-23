@@ -1,0 +1,67 @@
+
+Generate 5 MCQ questions from the following text.
+
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
+
+Text:
+Hana mi Ki Kahania: Hana ki Kahani, hana ki Hana. Jangle par uskaar aaj Aur sabhi jaanwar oke man mein Uskaar dhar Uske bho deh hune ke baad Khaatam hogeya Fher sab ke sab Uske ki kamzori ka mazakodha ne lege Bhoodha share.
+
+I am sure your father wishes to read the questions
+
+I am sure that your mother will read the answers
+
+The questions cannot be answered
+
+
+Let's continue, for my part, to meet your father
+
+Don't take my life lightly
+
+What are those dark thoughts of yours? I know you've never heard of this before
+
+Don't be afraid of me
+
+What do you think of the young man that is me?
+
+Don't be afraid of me
+
+What do you think of the old that is me?
+
+Don't be afraid of me
+
+Don't be afraid of the person that is me?
+
+Don't be afraid of the friend that is me
+
+Don't be scared of any of the human beings you know
+
+Be silent and let it go. Let it just sink
+
+Let it go. Let it just sink
+
+As if we are drowning
+
+Let it go. Let it just sink
+
+Do not allow fear
+
+Let it go. Let it just sink
+
+This is how I want to live my life.
+
+I know it is wrong, but no one can believe it.
+
+It is because I can't believe it you can believe it
+
+I know it is wrong. I just want to go where you have always wanted me to go
+
+I know it is wrong. You see it's just plain wrong, but the same is true with this woman.
+
+If you have a heart like mine, then let it drown. Let it drown
+
+There is nothing to hold on to, and if it drowns, then let it leave. Let it let go
+
+You love me, don't cry, but leave me alone.

@@ -1,0 +1,30 @@
+
+Generate 5 MCQ questions from the following text.
+
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
+
+Text:
+A crow was thirsty, but couldn't find any water nearby. After an extended search, the crow noticed a part in a lawn. The crow quickly flew toward it, hoping to locate water interior. To its sadness, the pot was nearly empty with only a little water at the bottom. The moral of this story is that if we use our brains and suppose creatively, we are able to discover answers.
+
+- If the answer to one question in the next six question (A, D, E) in either category (D in the A, C, E category, or A and C in the A-C category), then all questions in the next 6 question must not be of any kind at all. Otherwise, after the quiz successfully answers, the crow will not be able to learn the answer. Since no answer can be found, the question will not be considered a "Crazy Question." However, if the correct answer in either category is given then the question will always be considered a "Crazy Question."
+
+Dice (A-C):
+
+- The player can create 10 Dice per week.
+
+- Player can choose an additional 12 items, which is given to them by the player. The choices are all given by the game-keeper. This makes them free to choose any number of possible choices, but must be made for each player.
+
+- Each new GM must give each player a one on one die, with 12 in each category that the player chooses. Each roll is scored on the first die of each category (A, B, C, or D)
+
+- A roll means that the player gets to choose whatever category the player chose, regardless of a number of different options
+
+- If an item is already listed in a category then the next level item in the category is added to the list of available items to add
+
+- If an item is already in a category it will be added in this category (this makes it one item from the previous category) and will not be included in a new item
+
+- A-C rolls are given to the player
+
+- A-C also selects the number of items in the category, for example for "

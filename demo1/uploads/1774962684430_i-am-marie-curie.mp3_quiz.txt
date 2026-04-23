@@ -1,0 +1,18 @@
+
+Generate 5 MCQ questions from the following text.
+
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
+
+Text:
+Marie Curie was the first woman to win two Nobel prizes. She helped build hospitals with X-ray machines during the first world war. She learned that science is like a big puzzle. And she learned that even when things are hard, we should never give up. So remember my story. Learn and shine just like the stars. Never give up on your dreams. Maybe one day you will discover something amazing too.
+
+Source: http://youtu.be/KxwXWV8SX1M
+
+Fandom: http://www.fandom.com/photos/20160909
+
+Locations: http://kotaku.com/~liljones/
+
+Tags: 1, 3, 6, 8, 9, 10, 11

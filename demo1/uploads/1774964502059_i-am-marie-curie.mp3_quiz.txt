@@ -1,0 +1,12 @@
+
+Generate 5 MCQ questions from the following text.
+
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
+
+Text:
+Marie Curie was the first woman to win two Nobel prizes. She helped build hospitals with X-ray machines during the first world war. She learned that science is like a big puzzle. And she learned that even when things are hard, we should never give up. So remember my story. Learn and shine just like the stars. Never give up on your dreams. Maybe one day you will discover something amazing too.
+
+This text is for everyone. It is an excerpt from her book You are All Not Alone. When you hear this, you will feel empowered to think, not just for yourself, but also for all of the others. Your success brings you closer to your heart, because you are now stronger. Your success will lead your mind to focus. That's the power of reading this text. If you like the content of my book, please consider a donation at my website: http://www.mariemariecurie.com.

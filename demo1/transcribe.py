@@ -1,42 +1,32 @@
 import whisper
 import subprocess
-import os
 from transformers import pipeline
-video_folder = "uploads"
+import os
+import sys
 
-output_path = os.path.join(video_folder, "output.txt")
-summary_path = os.path.join(video_folder, "summary.txt")
+# ✅ GET FILENAME FROM JAVA
+file_name = sys.argv[1]
 
-if os.path.exists(output_path):
-    os.remove(output_path)
+upload_dir = "C:/Users/HP/Downloads/demo1/demo1/uploads/"
 
-if os.path.exists(summary_path):
-    os.remove(summary_path)
+video_path = os.path.join(upload_dir, file_name)
 
+# ✅ UNIQUE OUTPUT FILES PER VIDEO
+transcript_file = os.path.join(upload_dir, f"{file_name}_output.txt")
+summary_file = os.path.join(upload_dir, f"{file_name}_summary.txt")
+quiz_file = os.path.join(upload_dir, f"{file_name}_quiz.txt")
+
+audio_file = os.path.join(upload_dir, f"{file_name}_audio.wav")
+
+print("Processing:", video_path)
+
+# ✅ LOAD MODELS (ONLY ONCE)
 model = whisper.load_model("base")
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
-summarizer = pipeline("summarization")
-
-video_folder = "uploads"
-
-allowed_extensions = (".mp4",".mkv",".mov",".avi",".mp3",".wav",".m4a",".flac")
-
-videos = [
-    os.path.join(video_folder, f)
-    for f in os.listdir(video_folder)
-    if f.lower().endswith(allowed_extensions)
-]
-
-if len(videos) == 0:
-    print("No media file found")
-    exit()
-
-latest_video = max(videos, key=os.path.getctime)
-
-video_path = latest_video
-
-audio_file = "temp_audio.wav"
-
+# =========================
+# 🎧 STEP 1: EXTRACT AUDIO
+# =========================
 print("\nExtracting audio...")
 
 subprocess.run([
@@ -48,76 +38,90 @@ subprocess.run([
     audio_file
 ])
 
+# =========================
+# 📝 STEP 2: TRANSCRIPTION
+# =========================
 print("Transcribing...")
 
 result = model.transcribe(audio_file)
 transcript = result["text"]
 
-print("\nTranscript:\n")
-print(transcript)
-
-output_path = os.path.join(video_folder, "output.txt")
-
-with open(output_path, "w", encoding="utf-8") as f:
+with open(transcript_file, "w", encoding="utf-8") as f:
     f.write(transcript)
 
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+print("Transcript saved")
 
-
-from transformers import pipeline
-import os
-
+# =========================
+# 📄 STEP 3: SUMMARY
+# =========================
 print("Generating summary...")
 
-video_folder = "uploads"
-
-output_path = os.path.join(video_folder, "output.txt")
-summary_path = os.path.join(video_folder, "summary.txt")
-
-with open(output_path, "r", encoding="utf-8") as f:
-    transcript = f.read()
-
-summarizer = pipeline("summarization")
-
-# Step 1: Split transcript
+# Split into chunks (important for long text)
 max_chunk = 900
 chunks = [transcript[i:i+max_chunk] for i in range(0, len(transcript), max_chunk)]
 
 chunk_summaries = []
 
-# Step 2: Summarize each chunk
 for chunk in chunks:
-    summary = summarizer(
-        chunk,
-        max_length=150,
-        min_length=60,
-        do_sample=False
-    )
-    chunk_summaries.append(summary[0]["summary_text"])
+    try:
+        summary = summarizer(
+            chunk,
+            max_length=120,
+            min_length=40,
+            do_sample=False
+        )
+        chunk_summaries.append(summary[0]["summary_text"])
+    except:
+        continue
 
-# Step 3: Combine summaries
 combined_summary = " ".join(chunk_summaries)
 
-# Step 4: Final summarization
 final_summary = summarizer(
     combined_summary,
-    max_length=200,
-    min_length=100,
+    max_length=180,
+    min_length=80,
     do_sample=False
 )[0]["summary_text"]
 
-with open(summary_path, "w", encoding="utf-8") as f:
+with open(summary_file, "w", encoding="utf-8") as f:
     f.write(final_summary)
 
-print("Summary generated successfully")
+print("Summary saved")
 
-with open(summary_path, "w", encoding="utf-8") as f:
-    f.write(summary[0]['summary_text'])
-os.remove(audio_file)
+# =========================
+# 🧠 STEP 4: QUIZ
+# =========================
+print("Generating quiz...")
 
-print("\nTranscript saved to output.txt")
-print("Summary saved to summary.txt")
+quiz_prompt = f"""
+Generate 5 MCQ questions from the following text.
 
-import subprocess
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
 
-subprocess.run(["python", "quiz.py"])
+Text:
+{final_summary}
+"""
+
+generator = pipeline("text-generation", model="gpt2")
+
+quiz_output = generator(
+    quiz_prompt,
+    max_length=500,
+    num_return_sequences=1
+)[0]["generated_text"]
+
+with open(quiz_file, "w", encoding="utf-8") as f:
+    f.write(quiz_output)
+
+print("Quiz saved")
+
+# =========================
+# 🧹 CLEANUP
+# =========================
+if os.path.exists(audio_file):
+    os.remove(audio_file)
+
+print("\n✅ ALL TASKS COMPLETED")
