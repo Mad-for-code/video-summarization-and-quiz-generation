@@ -10,15 +10,31 @@ file_name = sys.argv[1]
 upload_dir = "C:/Users/HP/Downloads/demo1/demo1/uploads/"
 
 video_path = os.path.join(upload_dir, file_name)
-
+print("Processing file:", video_path)
 # ✅ UNIQUE OUTPUT FILES PER VIDEO
-transcript_file = os.path.join(upload_dir, f"{file_name}_output.txt")
-summary_file = os.path.join(upload_dir, f"{file_name}_summary.txt")
-quiz_file = os.path.join(upload_dir, f"{file_name}_quiz.txt")
+base_name = os.path.splitext(file_name)[0]
 
-audio_file = os.path.join(upload_dir, f"{file_name}_audio.wav")
+
+transcript_file = os.path.join(upload_dir, f"{base_name}_output.txt")
+summary_file = os.path.join(upload_dir, f"{base_name}_summary.txt")
+quiz_file = os.path.join(upload_dir, f"{base_name}_quiz.txt")
+audio_file = os.path.join(upload_dir, f"{base_name}_audio.wav")
+
+
+
+print("FILE NAME:", file_name)
+print("BASE NAME:", base_name)
+print("TRANSCRIPT FILE:", transcript_file)
+print("SUMMARY FILE:", summary_file)
+print("QUIZ FILE:", quiz_file)
 
 print("Processing:", video_path)
+
+print("Audio file path:", audio_file)
+
+ #if not os.path.exists(audio_file):
+  #("❌ Audio file missing before transcription")
+   #
 
 # ✅ LOAD MODELS (ONLY ONCE)
 model = whisper.load_model("base")
@@ -29,22 +45,61 @@ summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 # =========================
 print("\nExtracting audio...")
 
-subprocess.run([
-    "ffmpeg",
-    "-i", video_path,
-    "-ar", "16000",
-    "-ac", "1",
-    "-vn",
-    audio_file
-])
+print("Video exists:", os.path.exists(video_path))
+print("Input path:", video_path)
+print("Output path:", audio_file)
 
+result = subprocess.run(
+    [
+        "ffmpeg",
+        "-y",
+        "-i",
+        video_path,
+        "-ar",
+        "16000",
+        "-ac",
+        "1",
+        "-vn",
+        audio_file
+    ],
+    capture_output=True,
+    text=True
+)
+
+
+print("Return code:", result.returncode)
+print("STDOUT:", result.stdout)
+print("STDERR:", result.stderr)
+
+print("Audio exists after ffmpeg:", os.path.exists(audio_file))
+
+ #if not os.path.exists(audio_file):
+    #print("❌ Audio file missing before transcription")
+    #sys.exit(1)
+
+print(" Audio extracted successfully")
 # =========================
 # 📝 STEP 2: TRANSCRIPTION
 # =========================
 print("Transcribing...")
 
-result = model.transcribe(audio_file)
+print("Starting transcription...")
+
+try:
+    result = model.transcribe(
+        audio_file,
+        language="en",
+        fp16=False
+    )
+    print(" Transcription done")
+
+except Exception as e:
+    print(" WHISPER ERROR:", str(e))
+    exit()
+
 transcript = result["text"]
+print("Transcript length:", len(transcript))
+
 
 with open(transcript_file, "w", encoding="utf-8") as f:
     f.write(transcript)
@@ -124,4 +179,4 @@ print("Quiz saved")
 if os.path.exists(audio_file):
     os.remove(audio_file)
 
-print("\n✅ ALL TASKS COMPLETED")
+print("\n ALL TASKS COMPLETED")

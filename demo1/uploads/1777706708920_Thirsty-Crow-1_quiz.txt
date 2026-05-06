@@ -1,0 +1,58 @@
+
+Generate 5 MCQ questions from the following text.
+
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
+
+Text:
+A crow was thirsty, but couldn't find any water nearby. After an extended search, the crow noticed a part in a lawn. The crow quickly flew toward it, hoping to locate water interior. To its sadness, the pot was nearly empty with only a little water at the bottom. The moral of this story is that if we use our brains and suppose creatively, we are able to discover answers.
+
+- The next question must have 4 options (A, B or C)
+
+- Mention correct answer
+
+Text:
+
+No one would have been able to make this mistake at just this stage of life. A raven was a good guess, but it also had a bad egg. It made a few small changes to the lawn, but nothing that would really satisfy the crow's thirst, so the question was lost.
+
+- The first question must have 4 options (A, B, C)
+
+Text:
+
+What if you were to make a big mistake.
+
+- Instead of saying something like "This is a huge mistake, it's not true, my guess is it's way more difficult," try to find a good solution that explains why the problem is true.
+
+[Question 3:
+
+What do you want to be like, your girlfriend?
+
+[Answer 3:
+
+She's a great listener, and she knows I'm a nice person, so she just wanted to say something like, "No, that makes her a nice person."], which makes her a nice girl, but I think that makes her a poor person.
+
+- The last question must have 4 options (A, B, C, D)
+
+- Mention correct answer
+
+- Questions must be meaningful
+
+text:
+
+She's really nice, and she knew I was a nice person.
+
+- The question must have 4 options (A, B, C, D)
+
+- Mention correct answer
+
+- Questions must be meaningful
+
+Text:
+
+She's cute, but she just got old.
+
+- The question must have 4 options (A, B, C, D)
+
+- Mention correct

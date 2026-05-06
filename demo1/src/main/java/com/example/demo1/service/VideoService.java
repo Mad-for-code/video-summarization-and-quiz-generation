@@ -2,10 +2,15 @@ package com.example.demo1.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -13,17 +18,30 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 
 import java.io.ByteArrayOutputStream;
+
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import org.springframework.core.io.ClassPathResource;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class VideoService {
@@ -37,28 +55,6 @@ public class VideoService {
         } catch (Exception e) {
             e.printStackTrace();
             return "ERROR_READING_FILE";
-        }
-    }
-
-
-    public byte[] generatePdf(String content) {
-
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-            PdfWriter writer = new PdfWriter(out);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document document = new Document(pdfDoc);
-
-            document.add(new Paragraph(content));
-
-            document.close();
-
-            return out.toByteArray();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
@@ -82,23 +78,18 @@ public class VideoService {
         }
     }
 
-
-
     public String translateLargeText(String text, String lang) {
 
-        int chunkSize = 300; // safe limit
+        String[] sentences = text.split("(?<=\\.)"); // split by full stop
         StringBuilder result = new StringBuilder();
 
-        for (int i = 0; i < text.length(); i += chunkSize) {
+        for (String sentence : sentences) {
 
-            String chunk = text.substring(i, Math.min(i + chunkSize, text.length()));
-
-            String translatedChunk = translateText(chunk, lang);
-
-            result.append(translatedChunk).append(" ");
+            String translated = translateText(sentence, lang);
+            result.append(translated).append(" ");
 
             try {
-                Thread.sleep(800); // avoid rate limit
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -107,47 +98,85 @@ public class VideoService {
         return result.toString();
     }
 
-
     public String translateText(String text, String targetLang) {
 
         try {
+            String url = "https://translate.googleapis.com/translate_a/single"
+                    + "?client=gtx"
+                    + "&sl=en"
+                    + "&tl=" + targetLang
+                    + "&dt=t"
+                    + "&q=" + URLEncoder.encode(text, "UTF-8");
+
             RestTemplate restTemplate = new RestTemplate();
+            String response = restTemplate.getForObject(url, String.class);
 
-            String url = "https://deep-translate1.p.rapidapi.com/language/translate/v2";
+            if (response == null) return text;
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("X-RapidAPI-Key", "f9f70acccbmshc29c412896592dbp187692jsn3256b5d7d1c3");
-            headers.set("X-RapidAPI-Host", "deep-translate1.p.rapidapi.com");
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            // ✅ Extract FULL translation (not just first word)
+            StringBuilder translated = new StringBuilder();
 
-            // ✅ NORMALIZE HERE
-            targetLang = normalizeLang(targetLang);
+            String[] parts = response.split("\\[\\[\\[|\\]\\]\\]");
+            if (parts.length > 1) {
+                String[] segments = parts[1].split("\\],\\[");
+                for (String seg : segments) {
+                    String[] words = seg.split(",");
+                    String word = words[0].replace("\"", "");
 
-            Map<String, Object> body = new HashMap<>();
-            body.put("q", text);
-            body.put("source", "en");
-            body.put("target", targetLang);
+                    try {
+                        word = URLDecoder.decode(word, "UTF-8");
+                    } catch (Exception e) {
+                        // ignore if not decodable
+                    }
 
-            HttpEntity<Map<String, Object>> request =
-                    new HttpEntity<>(body, headers);
+                    translated.append(word).append(" ");
+                }
+            }
 
-            ResponseEntity<Map> response =
-                    restTemplate.postForEntity(url, request, Map.class);
-
-            if (response.getBody() == null) return text;
-
-            Map data = (Map) response.getBody().get("data");
-            if (data == null) return text;
-
-            Map translations = (Map) data.get("translations");
-            if (translations == null) return text;
-
-            Object translated = translations.get("translatedText");
-
-            return translated != null ? translated.toString() : text;
+            String finalText = translated.toString().trim();
+            return translated.toString().trim();
 
         } catch (Exception e) {
+            System.out.println("⚠️ Translation failed: " + e.getMessage());
             return text;
+        }
+    }
+
+
+
+
+
+    public byte[] generatePdf(String text) {
+
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            PdfWriter writer = new PdfWriter(out);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            // ✅ LOAD FONT FROM RESOURCES
+            ClassPathResource resource = new ClassPathResource("fonts/NotoSans-Regular.ttf");
+            InputStream is = resource.getInputStream();
+
+
+
+            PdfFont font = PdfFontFactory.createFont(
+                    is.readAllBytes(),
+                    PdfEncodings.IDENTITY_H
+            );
+
+            // ✅ APPLY FONT
+            Paragraph para = new Paragraph(text).setFont(font).setFontSize(12);
+
+            document.add(para);
+            document.close();
+
+            return out.toByteArray();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

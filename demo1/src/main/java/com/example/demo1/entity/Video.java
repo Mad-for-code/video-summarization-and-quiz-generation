@@ -25,6 +25,7 @@ public class Video {
     private String transcript; // file name
     private String summary;
     private String quiz;
+    private String originalFilename;
 
 
     @ManyToOne
@@ -99,5 +100,15 @@ public class Video {
     public void setQuizText(String quizText) {
         this.quizText = quizText;
     }
+
+
+    public String getOriginalFilename() {
+        return originalFilename;
+    }
+
+    public void setOriginalFilename(String originalFilename) {
+        this.originalFilename = originalFilename;
+    }
+
 
 }

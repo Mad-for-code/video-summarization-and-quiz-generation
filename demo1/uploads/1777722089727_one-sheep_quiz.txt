@@ -1,0 +1,34 @@
+
+Generate 5 MCQ questions from the following text.
+
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
+
+Text:
+Shila was a little wiggle worm. Her big brown eyes, usually so sparkly, were wide open, staring at the shadows dancing on her bedroom wall. Her favorite stuffed bunny, floppy, was tucked under her arm, but even floppy soft fur couldn't coax her to sleep. The sheep kept coming, each one doing something magical and wonderful. The colors began to swirl, the sound softened, and the sheep started to fade into a gentle, blurry haze.
+
+Shila was the girl that would have to learn how to get started with programming as a teenager. She had to make her own tools—she was so much fun.
+
+Then someone called out "Shila."
+
+"You could do it on your own," Shila said.
+
+She would put up with that if she liked. Once an idea arrived and something got stuck on her keyboard, it was her.
+
+"I didn't know how to even program," she said.
+
+She could do the same—maybe even better.
+
+She could, on her own, solve every problem she could—and then work with anyone she felt fit to work with.
+
+What else could you do, Shila thought.
+
+Shila knew that no matter how hard she tried, she would never be an effective programmer. But she also knew that most people made programming harder by forgetting to use a lot of tooling, or that some tools became too powerful, or that even if they weren't broken, the tools became obsolete in the process. The more they're used, the harder they become, and the harder it is for her to get started.
+
+Not only that, but there were more things that had to be learned. She would know when she needed to improve on what she was using. She would be more likely to use "no more" tools in her library, or more likely to build new things. She would also learn that "the best way to get your work done is to use a much bigger box of software."
+
+So with everything she had learned, Shila would eventually come to understand why programming was so valuable and what skills she would need her best:
+
+Programming

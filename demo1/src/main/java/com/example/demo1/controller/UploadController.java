@@ -11,9 +11,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.Map;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -43,30 +54,63 @@ public class UploadController {
             File folder = new File(uploadDir);
             if (!folder.exists()) folder.mkdirs();
 
-            // ✅ UNIQUE NAME
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            String originalName = file.getOriginalFilename();
+
+            // check if already uploaded before
+            List<Video> existingVideos =
+                    videoRepository.findAllByOriginalFilename(originalName);
+
+            for (Video existingVideo : existingVideos) {
+                if (existingVideo.getTranscriptText() != null) {
+                    return ResponseEntity.ok(existingVideo.getId());
+                }
+            }
+
+            // unique filename
+            String fileName = System.currentTimeMillis() + "_" + originalName;
 
             File dest = new File(uploadDir + fileName);
             file.transferTo(dest);
 
-            // ✅ RUN PYTHON WITH FILENAME
             ProcessBuilder pb = new ProcessBuilder(
-                    "python",
+                    "C:/Users/HP/AppData/Local/Programs/Python/Python312/python.exe",
                     "C:/Users/HP/Downloads/demo1/demo1/transcribe.py",
                     fileName
             );
-            pb.start();
 
-            // ✅ SAVE IN DB
+            pb.directory(new File("C:/Users/HP/Downloads/demo1/demo1"));
+            pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+
+            new Thread(() -> {
+                try (BufferedReader reader =
+                             new BufferedReader(
+                                     new InputStreamReader(process.getInputStream()))) {
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println("PYTHON: " + line);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+            System.out.println("Python started for file: " + fileName);
+
             User user = userRepository.findById(userId).orElseThrow();
 
             Video video = new Video();
             video.setFilename(fileName);
+            video.setOriginalFilename(originalName);
 
-            // 🔥 IMPORTANT: STORE FILE REFERENCES
-            video.setTranscript(fileName + "_output.txt");
-            video.setSummary(fileName + "_summary.txt");
-            video.setQuiz(fileName + "_quiz.txt");
+            // IMPORTANT: exactly same as python output
+            String baseName = fileName.substring(0, fileName.lastIndexOf("."));
+            video.setTranscript(baseName + "_output.txt");
+            video.setSummary(baseName + "_summary.txt");
+            video.setQuiz(baseName + "_quiz.txt");
 
             video.setUser(user);
 
@@ -84,28 +128,46 @@ public class UploadController {
     // TRANSCRIPT
     // =========================
     @GetMapping("/transcript/{id}")
-    public String getTranscript(@PathVariable Long id) {
+    public String getTranscript(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "en") String lang
+    ) {
+
+        System.out.println("Selected language: " + lang);
 
         Video video = videoRepository.findById(id).orElse(null);
 
-        if (video == null) return "NOT_READY";
-
-        // ✅ If already in DB → RETURN FAST
-        if (video.getTranscriptText() != null) {
-            return video.getTranscriptText();
+        if (video == null) {
+            System.out.println("Video not found for id: " + id);
+            return "NOT_READY";
         }
 
-        // ✅ Else read from file
+        System.out.println("DB transcript name: " + video.getTranscript());
+
         String fullPath = uploadDir + video.getTranscript();
+        System.out.println("Looking for: " + fullPath);
+
         File file = new File(fullPath);
+        System.out.println("Exists: " + file.exists());
 
         if (!file.exists()) return "NOT_READY";
 
-        String text = videoService.readFileContent(fullPath);
+        String text;
 
-        // ✅ SAVE TO DB (IMPORTANT)
-        video.setTranscriptText(text);
-        videoRepository.save(video);
+        // Load from DB or file
+        if (video.getTranscriptText() != null) {
+            text = video.getTranscriptText();
+        } else {
+            text = videoService.readFileContent(fullPath);
+
+            video.setTranscriptText(text);
+            videoRepository.save(video);
+        }
+
+        // Translate if needed
+        if (!lang.equals("en")) {
+            text = videoService.translateLargeText(text, lang);
+        }
 
         return text;
     }
@@ -113,25 +175,31 @@ public class UploadController {
     // SUMMARY
     // =========================
     @GetMapping("/summary/{id}")
-    public String getSummary(@PathVariable Long id) {
+    public String getSummary(@PathVariable Long id,
+                             @RequestParam(defaultValue = "en") String lang) {
 
         Video video = videoRepository.findById(id).orElse(null);
-
         if (video == null) return "NOT_READY";
 
+        String text;
+
         if (video.getSummaryText() != null) {
-            return video.getSummaryText();
+            text = video.getSummaryText();
+        } else {
+            String fullPath = uploadDir + video.getSummary();
+            File file = new File(fullPath);
+
+            if (!file.exists()) return "NOT_READY";
+
+            text = videoService.readFileContent(fullPath);
+
+            video.setSummaryText(text);
+            videoRepository.save(video);
         }
 
-        String fullPath = uploadDir + video.getSummary();
-        File file = new File(fullPath);
-
-        if (!file.exists()) return "NOT_READY";
-
-        String text = videoService.readFileContent(fullPath);
-
-        video.setSummaryText(text);
-        videoRepository.save(video);
+        if (!lang.equals("en")) {
+            text = videoService.translateLargeText(text, lang);
+        }
 
         return text;
     }
@@ -140,25 +208,31 @@ public class UploadController {
     // QUIZ
     // =========================
     @GetMapping("/quiz/{id}")
-    public String getQuiz(@PathVariable Long id) {
+    public String getQuiz(@PathVariable Long id,
+                          @RequestParam(defaultValue = "en") String lang) {
 
         Video video = videoRepository.findById(id).orElse(null);
-
         if (video == null) return "NOT_READY";
 
+        String text;
+
         if (video.getQuizText() != null) {
-            return video.getQuizText();
+            text = video.getQuizText();
+        } else {
+            String fullPath = uploadDir + video.getQuiz();
+            File file = new File(fullPath);
+
+            if (!file.exists()) return "NOT_READY";
+
+            text = videoService.readFileContent(fullPath);
+
+            video.setQuizText(text);
+            videoRepository.save(video);
         }
 
-        String fullPath = uploadDir + video.getQuiz();
-        File file = new File(fullPath);
-
-        if (!file.exists()) return "NOT_READY";
-
-        String text = videoService.readFileContent(fullPath);
-
-        video.setQuizText(text);
-        videoRepository.save(video);
+        if (!lang.equals("en")) {
+            text = videoService.translateLargeText(text, lang);
+        }
 
         return text;
     }
@@ -180,28 +254,92 @@ public class UploadController {
         }
 
         String fullPath = uploadDir + video.getTranscript();
-
         File file = new File(fullPath);
 
         if (!file.exists()) {
             return ResponseEntity.notFound().build();
         }
 
-        // ✅ Read transcript
+        // Read transcript
         String text = videoService.readFileContent(fullPath);
 
-        // ✅ Translate if needed
+        // Translate only once
+
         if (!lang.equals("en")) {
             text = videoService.translateLargeText(text, lang);
+
         }
 
-        // ✅ Generate PDF
         byte[] pdfBytes = videoService.generatePdf(text);
+
+        // Generate PDF
 
         return ResponseEntity.ok()
                 .header("Content-Disposition", "attachment; filename=transcript.pdf")
                 .header("Content-Type", "application/pdf")
                 .body(pdfBytes);
+    }
+    //----------------//
+    //youtube video---//
+    //----------------//
+
+    @PostMapping("/upload-youtube")
+    public ResponseEntity<?> uploadYoutube(@RequestBody Map<String, String> body) {
+
+        try {
+
+            String url = body.get("url");
+            Long userId = Long.parseLong(body.get("userId"));
+
+            String fileName = System.currentTimeMillis() + "_youtube.mp3";
+
+            // 🔥 CALL PYTHON TO DOWNLOAD + PROCESS
+            ProcessBuilder pb = new ProcessBuilder(
+                    "python",
+                    "C:/Users/HP/Downloads/demo1/demo1/youtube_download.py",
+                    url,
+                    fileName
+            );
+
+            pb.inheritIO(); // ✅ shows Python logs in IntelliJ
+
+            Process process = pb.start();
+
+            // run transcription after youtube download
+            ProcessBuilder transcribePb = new ProcessBuilder(
+                    "python",
+                    "C:/Users/HP/Downloads/demo1/demo1/transcribe.py",
+                    fileName
+            );
+
+            transcribePb.inheritIO();
+            Process transcribeProcess = transcribePb.start();
+            transcribeProcess.waitFor();
+
+            process.waitFor(); // 🔥 VERY IMPORTANT
+
+            // SAVE DB
+            User user = userRepository.findById(userId).orElseThrow();
+
+            Video video = new Video();
+            video.setFilename(fileName);
+
+
+            String baseName = fileName.substring(0, fileName.lastIndexOf("."));
+
+            video.setTranscript(baseName + "_output.txt");
+            video.setSummary(baseName + "_summary.txt");
+            video.setQuiz(baseName + "_quiz.txt");
+            video.setUser(user);
+
+            videoRepository.save(video);
+
+            return ResponseEntity.ok(video.getId());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error");
+        }
     }
 
     // =========================
