@@ -11,6 +11,7 @@ output_template = base_path + filename.replace(".mp3", "")
 
 ydl_opts = {
     'format': 'bestaudio/best',
+    'outtmpl': output_template,
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',

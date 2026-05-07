@@ -22,6 +22,11 @@ public class Video {
 
 
 
+
+    @Column(length = 1000)
+    private String youtubeUrl;
+
+
     private String transcript; // file name
     private String summary;
     private String quiz;
@@ -31,7 +36,8 @@ public class Video {
     @ManyToOne
     private User user;
 
-    public Video() {}
+    public Video() {
+    }
 
     public Long getId() {
         return id;
@@ -111,4 +117,11 @@ public class Video {
     }
 
 
+    public String getYoutubeUrl() {
+        return youtubeUrl;
+    }
+
+    public void setYoutubeUrl(String youtubeUrl) {
+        this.youtubeUrl = youtubeUrl;
+    }
 }

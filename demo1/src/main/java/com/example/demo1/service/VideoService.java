@@ -157,6 +157,11 @@ public class VideoService {
 
             // ✅ LOAD FONT FROM RESOURCES
             ClassPathResource resource = new ClassPathResource("fonts/NotoSans-Regular.ttf");
+
+            if (text.matches(".*[\\u0A00-\\u0A7F].*")) { // Punjabi unicode range
+               resource = new ClassPathResource("src/main/resources/fonts/NotoSansGurmukhi-Regular.ttf");
+            }
+
             InputStream is = resource.getInputStream();
 
 

@@ -25,6 +25,7 @@ import java.util.Map;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -38,6 +39,8 @@ public class UploadController {
 
     @Autowired
     private VideoService videoService;
+
+
 
     private final String uploadDir = "C:/Users/HP/Downloads/demo1/demo1/uploads/";
 
@@ -283,13 +286,52 @@ public class UploadController {
     //youtube video---//
     //----------------//
 
+    // ✅ STEP 1 YAHAN ADD KARO
+    private String extractVideoId(String url) {
+
+        if (url.contains("v=")) {
+            String id = url.split("v=")[1];
+
+            if (id.contains("&")) {
+                id = id.split("&")[0];
+            }
+
+            return id;
+        }
+
+        return url;
+    }
+
+
+
+
     @PostMapping("/upload-youtube")
     public ResponseEntity<?> uploadYoutube(@RequestBody Map<String, String> body) {
 
         try {
 
             String url = body.get("url");
+            String videoId = extractVideoId(url);
+
             Long userId = Long.parseLong(body.get("userId"));
+
+
+            // CHECK EXISTING
+            Optional<Video> existingVideo = videoRepository.findByYoutubeUrl(videoId);
+
+
+
+            if (existingVideo.isPresent()) {
+
+                Video video = existingVideo.get();
+
+                // transcript already generated
+                if (video.getTranscriptText() != null) {
+                    return ResponseEntity.ok(video.getId());
+                }
+            }
+
+
 
             String fileName = System.currentTimeMillis() + "_youtube.mp3";
 
@@ -303,27 +345,14 @@ public class UploadController {
 
             pb.inheritIO(); // ✅ shows Python logs in IntelliJ
 
-            Process process = pb.start();
-
-            // run transcription after youtube download
-            ProcessBuilder transcribePb = new ProcessBuilder(
-                    "python",
-                    "C:/Users/HP/Downloads/demo1/demo1/transcribe.py",
-                    fileName
-            );
-
-            transcribePb.inheritIO();
-            Process transcribeProcess = transcribePb.start();
-            transcribeProcess.waitFor();
-
-            process.waitFor(); // 🔥 VERY IMPORTANT
+           pb.start(); // 🔥 VERY IMPORTANT
 
             // SAVE DB
             User user = userRepository.findById(userId).orElseThrow();
 
             Video video = new Video();
             video.setFilename(fileName);
-
+            video.setYoutubeUrl(videoId);
 
             String baseName = fileName.substring(0, fileName.lastIndexOf("."));
 

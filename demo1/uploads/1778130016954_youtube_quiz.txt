@@ -1,0 +1,36 @@
+
+Generate 5 MCQ questions from the following text.
+
+Rules:
+- Each question must have 4 options (A, B, C, D)
+- Mention correct answer
+- Questions must be meaningful
+
+Text:
+The video is going to be a continuity of the continuous function and discontinuous function. The respective function is continuous and it is connected. So we have to prove this. If we want to check th If I have 1 in x, then I have 3 plus 2. So I have 5. Now I have to see that my limit is x to a F of X. What is the value of this value? So it is coming.
+
+- Now I have to check x to a f 1 of 3, as a result I have 7 in y. How does this relate to this?
+
+- Now I have to check y to a b of 4. What is the difference in this and what is the difference in this?
+
+- Now I have to check in a F of X - what are the parameters?
+
+- Now I have to check in b of 4 - what is the position of 4 in the f 1 of X, if I have 5 y and 8 in y are identical
+
+- Now I have to check in c of 4 and v are similar
+
+- Now I have to verify in d that my given answer is the correct response
+
+- Now I have to check in e of 4, to see that i is correct
+
+- Now I have to check in F of Y - what is the relation and what is its function? I have been asked this before. I know it will be this question.
+
+- Now I have to check x to a f 1 of 3 which means that i1 & i2 are equal in x, x and p1 = p2 in y
+
+- Now I have to check v of 4 and x = x = x = x/4 = 1, so I have to write x to x (5)
+
+- Now I have to verify b of 4 at y to a f 1 of 3, so I have to write f 1 to f 2 of 4
+
+- Now I have to prove y. How do I prove this? By saying x is zero, by using the two x's the nth is always false and so we can prove the problem.
+
+- Now I have to ensure
